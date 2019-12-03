@@ -7,7 +7,6 @@ package fr.tlse.miage.appformations.repositories;
 
 import fr.tlse.miage.appformations.entities.Session;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -33,7 +32,7 @@ public class SessionFacade extends AbstractFacade<Session> implements SessionFac
         super(Session.class);
     }
     
-    public void creerSession(Long idSession, Date date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation){
+    public void creerSession(Long idSession, int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation){
         this.session = new Session(idSession, date, nbParticipants, duree, capaciteMin, capaciteMax, idFormation);
         this.create(session);
     }

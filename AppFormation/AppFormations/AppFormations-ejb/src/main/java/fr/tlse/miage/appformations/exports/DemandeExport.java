@@ -5,27 +5,43 @@
  */
 package fr.tlse.miage.appformations.exports;
 
+import fr.tlse.miage.appformations.entities.Demande;
 import fr.tlse.miage.appformations.enumerations.StatutDemande;
+import java.io.Serializable;
 
 /**
  *
  * @author SALLABERRYMarion
  */
-public class DemandeExport {
+public class DemandeExport implements Serializable {
+
     private Long idDemande;
     private StatutDemande statut;
     private Long idFormation;
     private int nbParticipants;
     private Long idClient;
-    private String nomClient;
 
-    public DemandeExport(Long idDemande, StatutDemande statut, Long idFormation, int nbParticipants, Long idClient, String nomClient) {
+    public DemandeExport(StatutDemande statut, Long idFormation, int nbParticipants, Long idClient) {
+        this.statut = statut;
+        this.idFormation = idFormation;
+        this.nbParticipants = nbParticipants;
+        this.idClient = idClient;
+    }
+
+    public DemandeExport(Long idDemande, StatutDemande statut, Long idFormation, int nbParticipants, Long idClient) {
         this.idDemande = idDemande;
         this.statut = statut;
         this.idFormation = idFormation;
         this.nbParticipants = nbParticipants;
         this.idClient = idClient;
-        this.nomClient = nomClient;
+    }
+
+    public DemandeExport(Demande d) {
+        this.idDemande = d.getIdDemande();
+        this.statut = d.getStatut();
+        this.idFormation = d.getIdFormation();
+        this.nbParticipants = d.getNbParticipants();
+        this.idClient = d.getIdClient();
     }
 
     public Long getIdDemande() {
@@ -67,12 +83,4 @@ public class DemandeExport {
     public void setIdClient(Long idClient) {
         this.idClient = idClient;
     }
-
-    public String getNomClient() {
-        return nomClient;
-    }
-
-    public void setNomClient(String nomClient) {
-        this.nomClient = nomClient;
-    }    
 }

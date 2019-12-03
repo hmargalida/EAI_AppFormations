@@ -6,7 +6,6 @@
 package fr.tlse.miage.appformations.repositories;
 
 import fr.tlse.miage.appformations.entities.Session;
-import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -31,7 +30,7 @@ public interface SessionFacadeLocal {
 
     int count();
 
-    public void creerSession(Long idSession, Date date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation);
+    public void creerSession(Long idSession, int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation);
 
     public List<Session> findByCodeFormation(long codeFormation);    
 }

@@ -5,10 +5,14 @@
  */
 package fr.tlse.miage.appformations.jms;
 
+import fr.tlse.miage.appformations.exports.SessionExport;
+import javax.ejb.Local;
+
 /**
  *
  * @author SALLABERRYMarion
  */
-public class ReceiveCatalogue {
-    
+@Local
+public interface SendSessionLocal {
+    void sendSession(SessionExport session);
 }

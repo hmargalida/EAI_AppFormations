@@ -7,8 +7,6 @@ package fr.tlse.miage.appformations.entities;
 
 import fr.tlse.miage.appformations.enumerations.StatutSession;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,7 +29,7 @@ public class Session implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long idSession;
-    private Date date;
+    private int date;
     private StatutSession statut;
     private int nbParticipants;
     private int duree;
@@ -50,7 +48,7 @@ public class Session implements Serializable {
 
     }
 
-    public Session(Long idSession, Date date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation) {
+    public Session(Long idSession, int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation) {
         this.idSession = idSession;
         this.date = date;
         this.nbParticipants = nbParticipants;
@@ -71,11 +69,11 @@ public class Session implements Serializable {
         this.idSession = idSession;
     }
 
-    public Date getDate() {
+    public int getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(int date) {
         this.date = date;
     }
 
@@ -157,6 +155,10 @@ public class Session implements Serializable {
 
     public void removeDemande(Demande d) {
         this.listeDemandes.remove(d);
+    }
+
+    public Calendar getCreatedDate() {
+        return createdDate;
     }
 
     @Override

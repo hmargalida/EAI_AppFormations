@@ -19,6 +19,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.ws.rs.POST;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -31,8 +32,6 @@ import javax.ws.rs.core.MediaType;
 public class FormationWebService {
 
     GestionFormationsLocal gestionFormations = lookupGestionFormationsLocal();
-
-   
 
     @Context
     private UriInfo context;
@@ -53,33 +52,32 @@ public class FormationWebService {
     @Path("{idSession}/annulerSession")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public String annulerSession(String content) {
-        try{
-            return this.gestionFormations.annulerSession(content);
+    public String annulerSession(@QueryParam("idSession") long idSession) {
+        try {
+            return this.gestionFormations.annulerSession(idSession);
+        } catch (Exception ex) {
+            Logger.getLogger(FormationWebService.class.getName()).log(Level.SEVERE, null, ex);
+            return ex.toString();
         }
-        catch(SessionInexistanteException siexc){
-            return siexc.toString();
-        }   
     }
 
     /**
      * POST method for updating or creating an instance of FormationWebService
      *
      * @param content representation for the resource
-     * @return 
+     * @return
      */
     @Path("{idFormation}/traiterDemandes")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String traiterDemandes(String content) {
-        try{
-            return this.gestionFormations.traiterDemandes(content);
+    public String traiterDemandes(@QueryParam("idFormation") long idFormation) {
+        try {
+            return this.gestionFormations.traiterDemandes(idFormation);
+        } catch (Exception ex) {
+            Logger.getLogger(FormationWebService.class.getName()).log(Level.SEVERE, null, ex);
+            return ex.toString();
         }
-        catch(FormationNotFoundException fnfexc){
-            return fnfexc.toString();
-        }
-        
     }
 
     private GestionFormationsLocal lookupGestionFormationsLocal() {

@@ -11,6 +11,14 @@ import fr.tlse.miage.appformations.entities.Session;
 import fr.tlse.miage.appformations.enumerations.StatutSession;
 import fr.tlse.miage.appformations.exceptions.FormationNotFoundException;
 import fr.tlse.miage.appformations.exceptions.SessionInexistanteException;
+import fr.tlse.miage.appformations.exports.DemandeExport;
+import fr.tlse.miage.appformations.exports.FormateurDispoExport;
+import fr.tlse.miage.appformations.exports.ListeFormateursDisposExport;
+import fr.tlse.miage.appformations.exports.ListeSallesDisposExport;
+import fr.tlse.miage.appformations.exports.SalleDispoExport;
+import fr.tlse.miage.appformations.exports.SessionExport;
+import fr.tlse.miage.appformations.jms.SendDemandeTraiteeLocal;
+import fr.tlse.miage.appformations.jms.SendSessionLocal;
 import fr.tlse.miage.appformations.repositories.DemandeFacadeLocal;
 import fr.tlse.miage.appformations.repositories.SessionFacadeLocal;
 import java.util.ArrayList;
@@ -30,13 +38,53 @@ import javax.ejb.Stateless;
 public class GestionFormations implements GestionFormationsLocal {
 
     @EJB
+    private SendDemandeTraiteeLocal sendDemandeTraitee;
+
+    @EJB
+    private SendSessionLocal sendSession;
+
+    @EJB
     private SessionFacadeLocal sessionFacade;
 
     @EJB
     private DemandeFacadeLocal demandeFacade;
 
+    private ArrayList<Demande> demandesValidees;
+    private ArrayList<ListeFormateursDisposExport> listeFormateursDispos;
+    private ArrayList<ListeSallesDisposExport> listeSallesDispos;
+
+    public GestionFormations() {
+        this.demandesValidees = new ArrayList<Demande>();
+        this.listeFormateursDispos = new ArrayList<ListeFormateursDisposExport>();
+        this.listeSallesDispos = new ArrayList<ListeSallesDisposExport>();
+    }
+
+    public void addDemandeValidee(Demande demande) {
+        this.demandesValidees.add(demande);
+    }
+
+    public void removeDemandeValidee(Demande demande) {
+        this.demandesValidees.remove(demande);
+    }
+
+    public void addListeFormateursDispos(ListeFormateursDisposExport liste) {
+        this.listeFormateursDispos.add(liste);
+    }
+
+    public void removeListeFormateursDispos(ListeFormateursDisposExport liste) {
+        this.listeFormateursDispos.remove(liste);
+    }
+
+    public void addListeSallesDispos(ListeSallesDisposExport liste) {
+        this.listeSallesDispos.add(liste);
+    }
+
+    public void removeListeSallesDispos(ListeSallesDisposExport liste) {
+        this.listeSallesDispos.remove(liste);
+    }
+
     @Override
-    public void annulerSession(long idSession) throws SessionInexistanteException {
+    public String annulerSession(long idSession) throws SessionInexistanteException {
 
         Session s = this.sessionFacade.find(idSession);
 
@@ -49,24 +97,20 @@ public class GestionFormations implements GestionFormationsLocal {
 
             s.setStatut(StatutSession.Annulee);
 
-            //Envoi session annulee dans JMS
+            SessionExport se = new SessionExport(s);
+            this.sendSession.sendSession(se);
+            
+            return "La session a été annulée !";
+
         } else {
             throw new SessionInexistanteException("La session " + idSession + " n'existe pas.");
         }
 
     }
-    
-    @Override
-    public String annulerSession(String content){
-        return "OK annulerSession";
-    }
 
     @Override
-    public void traiterDemandes(long codeFormation) throws FormationNotFoundException {
-        //Récupération liste demandes validées
-        List<Demande> demandesValidees = new ArrayList<Demande>();
+    public String traiterDemandes(long codeFormation) throws FormationNotFoundException {
         List<Session> listeSessions = this.sessionFacade.findByCodeFormation(codeFormation);
-        List<Demande> demandesTraitees = new ArrayList<Demande>();
 
         for (Demande d : demandesValidees) {
             if (d.getIdFormation() != null) {
@@ -78,11 +122,15 @@ public class GestionFormations implements GestionFormationsLocal {
                             d.setStatut(StatutDemande.Traitee);
                             s.setNbParticipants(s.getNbParticipants() + nbParticipants);
                             s.addDemande(d);
-                            demandesTraitees.add(d);
+
+                            DemandeExport de = new DemandeExport(d);
+                            this.sendDemandeTraitee.sendDemandeTraitee(de);
 
                             if ((nbParticipants >= s.getCapaciteMin()) && (s.getStatut() != StatutSession.Planifiee)) {
                                 s.setStatut(StatutSession.Planifiee);
-                                //Envoi dans JMS Session Planifiée
+
+                                SessionExport se = new SessionExport(s);
+                                this.sendSession.sendSession(se);
                             }
 
                         } else {
@@ -90,20 +138,37 @@ public class GestionFormations implements GestionFormationsLocal {
                                 Session newSession = new Session();
                                 this.sessionFacade.create(newSession);
                                 newSession.setStatut(StatutSession.En_projet);
-                                //Recuperer listeFormateursDispo dans JMS
-                                //RecupererListeSallesDispo dans JMS
-                                Map<Long, Map<Date, Long>> listeFormateursDispo = new HashMap<Long, Map<Date, Long>>();
-                                Map<Long, Map<Date, Long>> listeSallesDispo = new HashMap<Long, Map<Date, Long>>();
-                                Date date = determinerMeilleurePeriode(codeFormation, listeFormateursDispo, listeSallesDispo, newSession.getDuree());
-                                if (date != null) {
+
+                                ArrayList<FormateurDispoExport> formateurs = new ArrayList<FormateurDispoExport>();
+                                for (ListeFormateursDisposExport liste : this.listeFormateursDispos) {
+                                    FormateurDispoExport form = liste.getFormateursDispos().get(0);
+                                    if (form.getIdFormation() == codeFormation) {
+                                        formateurs.addAll(liste.getFormateursDispos());
+                                    }
+                                }
+
+                                ArrayList<SalleDispoExport> salles = new ArrayList<SalleDispoExport>();
+                                for (ListeSallesDisposExport liste : this.listeSallesDispos) {
+                                    SalleDispoExport salle = liste.getSallesDispos().get(0);
+                                    if (salle.getIdFormation() == codeFormation) {
+                                        salles.addAll(liste.getSallesDispos());
+                                    }
+                                }
+
+                                int date = determinerMeilleurePeriode(codeFormation, formateurs, salles);
+                                if (date != 0) {
                                     newSession.setDate(date);
                                     newSession.setNbParticipants(d.getNbParticipants());
                                     newSession.addDemande(d);
-                                    demandesTraitees.add(d);
+
+                                    DemandeExport de = new DemandeExport(d);
+                                    this.sendDemandeTraitee.sendDemandeTraitee(de);
 
                                     if ((nbParticipants >= s.getCapaciteMin()) && (s.getStatut() != StatutSession.Planifiee)) {
                                         newSession.setStatut(StatutSession.Planifiee);
-                                        //Envoi dans JMS Session Planifiée
+
+                                        SessionExport se = new SessionExport(s);
+                                        this.sendSession.sendSession(se);
                                     }
 
                                     this.sessionFacade.edit(newSession);
@@ -119,27 +184,34 @@ public class GestionFormations implements GestionFormationsLocal {
             }
 
         }
-        //Envoi listeDemandesTraitees dans JMS
-    }
-    
-    @Override
-    public String traiterDemandes(String content){
-        return "OK traiterDemandes";
+        return "Les demandes ont été traitées !";
     }
 
-    private static Date determinerMeilleurePeriode(long codeFormation, Map<Long, Map<Date, Long>> listeFormateursDispo, Map<Long, Map<Date, Long>> listeSallesDispo, int duree) {
-        HashMap<Date,Long> formateursDispo = (HashMap<Date,Long>) listeFormateursDispo.get(codeFormation);
-        HashMap<Date,Long> sallesDispo = (HashMap<Date,Long>) listeSallesDispo.get(codeFormation);
-        Set<Date> datesFormateursDispo = formateursDispo.keySet();
-        Set<Date> datesSallesDispo = sallesDispo.keySet();
-        for (Date dF : datesFormateursDispo) {
-            for (Date dS : datesSallesDispo) {
+    private static int determinerMeilleurePeriode(long codeFormation, ArrayList<FormateurDispoExport> listeFormateursDispo, ArrayList<SalleDispoExport> listeSallesDispo) {
+        HashMap<Integer, Long> disposFormateurs = new HashMap<Integer, Long>();
+        for (FormateurDispoExport f : listeFormateursDispo) {
+            for (int date : f.getListeSemainesDispo()) {
+                disposFormateurs.put(date, f.getIdFormateur());
+            }
+        }
+
+        HashMap<Integer, Long> disposSalles = new HashMap<Integer, Long>();
+        for (SalleDispoExport f : listeSallesDispo) {
+            for (int date : f.getListeSemainesDispo()) {
+                disposSalles.put(date, f.getIdSalle());
+            }
+        }
+
+        Set<Integer> datesFormateurs = disposFormateurs.keySet();
+        Set<Integer> datesSalles = disposSalles.keySet();
+
+        for (int dF : datesFormateurs) {
+            for (int dS : datesSalles) {
                 if (dF == dS) {
                     return dF;
                 }
             }
         }
-        return null;
+        return 0;
     }
-
 }

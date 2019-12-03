@@ -5,8 +5,11 @@
  */
 package fr.tlse.miage.appformations.business;
 
+import fr.tlse.miage.appformations.entities.Demande;
 import fr.tlse.miage.appformations.exceptions.FormationNotFoundException;
 import fr.tlse.miage.appformations.exceptions.SessionInexistanteException;
+import fr.tlse.miage.appformations.exports.ListeFormateursDisposExport;
+import fr.tlse.miage.appformations.exports.ListeSallesDisposExport;
 import javax.ejb.Local;
 
 /**
@@ -16,11 +19,20 @@ import javax.ejb.Local;
 @Local
 public interface GestionFormationsLocal {
 
-    void annulerSession(long idSession) throws SessionInexistanteException;
+    void addDemandeValidee(Demande demande);
     
-    String annulerSession(String content) throws SessionInexistanteException;
+    void removeDemandeValidee(Demande demande);
+    
+    void addListeFormateursDispos(ListeFormateursDisposExport liste);
 
-    void traiterDemandes(long codeFormation) throws FormationNotFoundException;
+    void removeListeFormateursDispos(ListeFormateursDisposExport liste);
+
+    void addListeSallesDispos(ListeSallesDisposExport liste);
+
+    void removeListeSallesDispos(ListeSallesDisposExport liste);
     
-    String traiterDemandes(String content) throws FormationNotFoundException;
+    String annulerSession(long idSession) throws SessionInexistanteException;
+
+    String traiterDemandes(long codeFormation) throws FormationNotFoundException;
+
 }
