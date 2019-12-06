@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @author SALLABERRYMarion
  */
 public class ListeFormateursDisposExport {
-    private ArrayList<FormateurDispoExport> formateursDispos ;
+    private ArrayList<FormateurDispoExport> formateursDispos ; //Liste des disponiblités des formateurs
     
     public ListeFormateursDisposExport(ArrayList<FormateurDispoExport> formateursDispos){
         this.formateursDispos = formateursDispos;

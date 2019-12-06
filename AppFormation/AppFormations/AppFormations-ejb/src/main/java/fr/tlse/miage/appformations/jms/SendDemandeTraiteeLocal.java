@@ -14,5 +14,11 @@ import javax.ejb.Local;
  */
 @Local
 public interface SendDemandeTraiteeLocal {
+
+    /**
+     * Envoi de messages dans le topic DemandesTraitees
+     *
+     * @param demande - demande à envoyer
+     */
     void sendDemandeTraitee(DemandeExport demande);
 }

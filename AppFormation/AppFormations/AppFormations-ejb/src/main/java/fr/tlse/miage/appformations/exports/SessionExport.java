@@ -8,7 +8,6 @@ package fr.tlse.miage.appformations.exports;
 import fr.tlse.miage.appformations.entities.Session;
 import fr.tlse.miage.appformations.enumerations.StatutSession;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  *
@@ -16,13 +15,13 @@ import java.util.Date;
  */
 public class SessionExport {
 
-    private Long idSession;
-    private int date;
-    private StatutSession statut;
-    private Long idFormateur;
-    private Long idSalle;
-    private Long idFormation;
-    private Calendar createdDate;
+    private Long idSession;                 //Identifiant de la session - l'attribut est autogénéré
+    private int date;                       //Numéro de la semaine pendant laquelle se déroule la session
+    private StatutSession statut;           //Statut de la session
+    private Long idFormateur;               //Identifiant du formateur associé
+    private Long idSalle;                   //Identifiant de la salle associée
+    private Long idFormation;               //Identifiant de la formation associée
+    private Calendar createdDate;           //Date de création de la session
 
     public SessionExport(Long idSession, int date, StatutSession statut, Long idFormation, Calendar createdDate) {
         this.idSession = idSession;

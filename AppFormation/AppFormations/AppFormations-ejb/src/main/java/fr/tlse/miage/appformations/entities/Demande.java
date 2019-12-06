@@ -22,19 +22,18 @@ public class Demande implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idDemande;
-    private StatutDemande statut;
-    private Long idFormation;
-    private int nbParticipants;
-    private Long idClient;
+    private Long idDemande;         //Identifiant de la demande - l'attribut est généré automatiquepent
+    private StatutDemande statut;   //Statut de la demande
+    private Long idFormation;       //Identifiant de la formation associée
+    private int nbParticipants;     //Nombre de personnes participant à cette formation
+    private Long idClient;          //Identifiant du client qui effectue la demande
 
     public Demande (){
         
     }
     
-    public Demande(Long idDemande, Long idFormation, int nbParticipants, Long idClient){
-        this.idDemande = idDemande;
-        this.statut = StatutDemande.En_attente;
+    public Demande(Long idFormation, int nbParticipants, Long idClient){
+        this.statut = StatutDemande.En_attente;     //Par défaut, lorsqu'on crée une demande, elle est en attente de validation
         this.idFormation = idFormation;
         this.nbParticipants = nbParticipants;
         this.idClient = idClient;

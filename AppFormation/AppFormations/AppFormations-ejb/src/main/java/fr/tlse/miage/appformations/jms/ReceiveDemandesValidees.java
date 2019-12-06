@@ -27,22 +27,30 @@ import javax.jms.TextMessage;
     ,
         @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue")
 })
-public class ReceiveDemandesValidees implements MessageListener{
+public class ReceiveDemandesValidees implements MessageListener {
 
     @EJB
-    private GestionFormationsLocal gestionFormations;
-    private Gson gson;
-    
+    private GestionFormationsLocal gestionFormations;   //Objet permettant d'appeler le code métier
+    private Gson gson;        //Objet permettant d'effectuer des conversions depuis/vers du json
 
     public ReceiveDemandesValidees() {
         this.gson = new Gson();
     }
+
+    /**
+     * Réception des messages contenus dans la queue DemandesFormationsValidees
+     *
+     * @param message - message reçu
+     */
     @Override
     public void onMessage(Message message) {
-                if (message instanceof TextMessage) {
+        if (message instanceof TextMessage) {
             try {
+                //Récupération du contenu du message
                 String json = ((TextMessage) message).getText();
+                //Conversion du message en objet Demande
                 Demande demande = this.gson.fromJson(json, Demande.class);
+                //Ajout de la demande à la liste des demandes à traiter
                 this.gestionFormations.addDemandeValidee(demande);
                 System.out.println("Demande ajoutée à la liste des demandes à traiter !");
             } catch (JMSException ex) {
@@ -52,5 +60,5 @@ public class ReceiveDemandesValidees implements MessageListener{
             System.out.println("Echec de réception du message");
         }
     }
-    
+
 }

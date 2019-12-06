@@ -30,6 +30,14 @@ public interface DemandeFacadeLocal {
 
     int count();
 
-    public void creerDemande(Long idDemande, Long idFormation, int nbParticipants, Long idClient);
-    
+    /**
+     * Création d'une demande dans la base de données
+     *
+     * @param idFormation - identifiant de la formation associée
+     * @param nbParticipants - nombre de participants à la formation
+     * @param idClient - identifiant du client associé
+     * @return - identifiant de la demande créée
+     */
+    public Long creerDemande(Long idFormation, int nbParticipants, Long idClient);
+
 }

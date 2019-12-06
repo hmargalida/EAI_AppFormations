@@ -10,9 +10,9 @@ package fr.tlse.miage.appformations.enumerations;
  * @author SALLABERRYMarion
  */
 public enum StatutDemande {
-    En_attente, 
-    Acceptee, 
-    Refusee, 
-    Traitee, 
-    Annulee
+    En_attente, //Demande en attente d'acceptation
+    Acceptee,   //Demande acceptée
+    Refusee,    //Demande refusée
+    Traitee,    //Demande acceptée et traitée
+    Annulee     //Demande annulée (non traitée)
 }

@@ -9,7 +9,6 @@ import fr.tlse.miage.appformations.enumerations.StatutSession;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,28 +27,28 @@ public class Session implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idSession;
-    private int date;
-    private StatutSession statut;
-    private int nbParticipants;
-    private int duree;
-    private int capaciteMin;
-    private int capaciteMax;
-    private Long idFormateur;
-    private Long idSalle;
-    private Long idFormation;
+    private Long idSession;                 //Identifiant de la session - l'attribut est autogénéré
+    private int date;                       //Numéro de la semaine pendant laquelle se déroule la session
+    private StatutSession statut;           //Statut de la session
+    private int nbParticipants;             //Nombre de participants de la session
+    private int duree;                      //Duree de la session (3 ou 5 jours)
+    private int capaciteMin;                //Capacité minimale de la session
+    private int capaciteMax;                //Capacité maximale de la session
+    private Long idFormateur;               //Identifiant du formateur associé
+    private Long idSalle;                   //Identifiant de la salle associée
+    private Long idFormation;               //Identifiant de la formation associée
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Calendar createdDate;
+    private Calendar createdDate;           //Date de création de la session
     
     @OneToMany
-    private List<Demande> listeDemandes;
+    private List<Demande> listeDemandes;    //Liste des demandes associées à cette session
 
     public Session() {
-
+        this.listeDemandes = new ArrayList<Demande>();
+        this.createdDate = Calendar.getInstance();  //Récupération de la date courante
     }
 
-    public Session(Long idSession, int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation) {
-        this.idSession = idSession;
+    public Session(int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation) {
         this.date = date;
         this.nbParticipants = nbParticipants;
         this.duree = duree;

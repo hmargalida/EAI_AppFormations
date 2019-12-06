@@ -30,21 +30,30 @@ import javax.jms.TextMessage;
 public class ReceiveListeFormateursDispos implements MessageListener {
 
     @EJB
-    private GestionFormationsLocal gestionFormations;
-    
-    private Gson gson;
+    private GestionFormationsLocal gestionFormations;   //Objet permettant d'appeler le code métier
+
+    private Gson gson;        //Objet permettant d'effectuer des conversions depuis/vers du json
 
     public ReceiveListeFormateursDispos() {
         this.gson = new Gson();
     }
 
+    /**
+     * Réception des messages contenus dans le topic ListeFormateursDispos
+     *
+     * @param message - message reçu
+     */
     @Override
     public void onMessage(Message message) {
         if (message instanceof TextMessage) {
             try {
+                //Récupération du contenu du message
                 String json = ((TextMessage) message).getText();
+                //Conversion du message en objet ListeFormateursDisposExport
                 ListeFormateursDisposExport listeFormateurs = this.gson.fromJson(json, ListeFormateursDisposExport.class);
+                //Ajout de la liste à la liste des disponibilités
                 this.gestionFormations.addListeFormateursDispos(listeFormateurs);
+                System.out.println("Formateurs ajoutés à la liste des formateurs disponibles !");
             } catch (JMSException ex) {
                 Logger.getLogger(ReceiveListeFormateursDispos.class.getName()).log(Level.SEVERE, null, ex);
             }

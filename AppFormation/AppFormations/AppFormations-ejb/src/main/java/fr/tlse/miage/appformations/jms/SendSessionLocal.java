@@ -14,5 +14,11 @@ import javax.ejb.Local;
  */
 @Local
 public interface SendSessionLocal {
+
+    /**
+     * Envoi de messages dans le topic Session
+     *
+     * @param session - session à envoyer
+     */
     void sendSession(SessionExport session);
 }

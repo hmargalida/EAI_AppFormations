@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @author SALLABERRYMarion
  */
 public class ListeSallesDisposExport {
-    private ArrayList<SalleDispoExport> sallesDispos ;
+    private ArrayList<SalleDispoExport> sallesDispos ; //Liste des disponiblités des salles
     
     public ListeSallesDisposExport(ArrayList<SalleDispoExport> sallesDispos){
         this.sallesDispos = sallesDispos;

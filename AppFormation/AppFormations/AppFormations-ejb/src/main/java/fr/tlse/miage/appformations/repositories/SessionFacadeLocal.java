@@ -30,7 +30,24 @@ public interface SessionFacadeLocal {
 
     int count();
 
-    public void creerSession(Long idSession, int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation);
+    /**
+     * Création d'une session dans la base de données
+     *
+     * @param date - numéro de semaine d'organisation de la session
+     * @param nbParticipants - nombre de participants à la session
+     * @param duree - durée de la session (3 ou 5 jours)
+     * @param capaciteMin - capacité minimale de la session
+     * @param capaciteMax - capacité maximale de la session
+     * @param idFormation - identifiant de la formation associée
+     * @return - identifiant de la session créée
+     */
+    public Long creerSession(int date, int nbParticipants, int duree, int capaciteMin, int capaciteMax, Long idFormation);
 
-    public List<Session> findByCodeFormation(long codeFormation);    
+    /**
+     * Récupération de la liste des sessions associées à une formation
+     *
+     * @param codeFormation - identifiant de la formation recherchée
+     * @return - liste des sessions associées
+     */
+    public List<Session> findByCodeFormation(long codeFormation);
 }

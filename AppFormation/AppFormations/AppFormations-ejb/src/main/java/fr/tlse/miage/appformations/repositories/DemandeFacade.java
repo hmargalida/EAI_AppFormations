@@ -21,6 +21,10 @@ public class DemandeFacade extends AbstractFacade<Demande> implements DemandeFac
     private EntityManager em;
     private Demande demande;
 
+    /**
+     * Récupération d'une instance de l'EntityManager pour agir sur la base de données
+     * @return - instance de l'EntityManager
+     */
     @Override
     protected EntityManager getEntityManager() {
         return em;
@@ -30,8 +34,16 @@ public class DemandeFacade extends AbstractFacade<Demande> implements DemandeFac
         super(Demande.class);
     }
     
-    public void creerDemande(Long idDemande, Long idFormation, int nbParticipants, Long idClient){
-        this.demande = new Demande(idDemande, idFormation, nbParticipants, idClient);
+    /**
+     * Création d'une demande dans la base de données
+     * @param idFormation - identifiant de la formation associée
+     * @param nbParticipants - nombre de participants à la formation
+     * @param idClient - identifiant du client associé
+     * @return - identifiant de la demande créée
+     */
+    public Long creerDemande(Long idFormation, int nbParticipants, Long idClient){
+        this.demande = new Demande(idFormation, nbParticipants, idClient);
         this.create(demande);
+        return demande.getIdDemande();
     }
 }

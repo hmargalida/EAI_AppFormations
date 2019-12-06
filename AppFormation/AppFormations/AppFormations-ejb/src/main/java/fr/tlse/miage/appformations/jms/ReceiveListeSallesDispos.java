@@ -30,21 +30,30 @@ import javax.jms.TextMessage;
 public class ReceiveListeSallesDispos implements MessageListener {
 
     @EJB
-    private GestionFormationsLocal gestionFormations;
+    private GestionFormationsLocal gestionFormations;   //Objet permettant d'appeler le code métier
 
-    private Gson gson;
+    private Gson gson;        //Objet permettant d'effectuer des conversions depuis/vers du json
 
     public ReceiveListeSallesDispos() {
         this.gson = new Gson();
     }
 
+    /**
+     * Réception des messages contenus dans le topic ListeFormateursDispos
+     *
+     * @param message - message reçu
+     */
     @Override
     public void onMessage(Message message) {
         if (message instanceof TextMessage) {
             try {
+                //Récupération du contenu du message
                 String json = ((TextMessage) message).getText();
+                //Conversion du message en objet ListeSallesDisposExport
                 ListeSallesDisposExport listeSalles = this.gson.fromJson(json, ListeSallesDisposExport.class);
+                //Ajout de la liste à la liste des disponibilités
                 this.gestionFormations.addListeSallesDispos(listeSalles);
+                System.out.println("Salles ajoutées à la liste des salles disponibles !");
             } catch (JMSException ex) {
                 Logger.getLogger(ReceiveListeSallesDispos.class.getName()).log(Level.SEVERE, null, ex);
             }

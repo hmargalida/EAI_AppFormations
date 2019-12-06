@@ -10,7 +10,7 @@ package fr.tlse.miage.appformations.enumerations;
  * @author SALLABERRYMarion
  */
 public enum StatutSession {
-    En_projet, 
-    Planifiee, 
-    Annulee
+    En_projet,  //Session en projet
+    Planifiee,  //Session planifiée
+    Annulee     //Session annulée
 }

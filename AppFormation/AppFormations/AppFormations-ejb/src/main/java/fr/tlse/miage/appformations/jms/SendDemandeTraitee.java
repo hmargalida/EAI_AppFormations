@@ -5,8 +5,8 @@
  */
 package fr.tlse.miage.appformations.jms;
 
+import com.google.gson.Gson;
 import fr.tlse.miage.appformations.exports.DemandeExport;
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -16,7 +16,7 @@ import javax.jms.JMSConnectionFactory;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.JMSProducer;
-import javax.jms.ObjectMessage;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 /**
@@ -27,32 +27,40 @@ import javax.jms.Topic;
 public class SendDemandeTraitee implements SendDemandeTraiteeLocal {
 
     /**
-     * Nom du Topic recherché.
+     * Nom du Topic
      */
     @Resource(mappedName = "DemandesTraitees")
     private Topic DemandesTraitees;
     /**
-     * contexte JMS. Injection auto par serveur d'appli.
+     * contexte JMS
      */
     @Inject
     @JMSConnectionFactory("ConnectionFactory")
     private JMSContext context;
+    
+    private Gson gson;      //Objet permettant d'effectuer des conversions depuis/vers du json
 
     public SendDemandeTraitee() {
-
+        this.gson = new Gson();
     }
 
-    // Add business logic below. (Right-click in editor and choose
-    // "Insert Code > Add Business Method")
+    /**
+     * Envoi de messages dans le topic DemandesTraitees
+     *
+     * @param demande - demande à envoyer
+     */
     @Override
     public void sendDemandeTraitee(DemandeExport demande) {
         try {
             JMSProducer producer = context.createProducer();
-            ObjectMessage mess = context.createObjectMessage();
+            TextMessage mess = context.createTextMessage();
+            //Conversion de l'objet demande en json
+            mess.setText(this.gson.toJson(demande));
             mess.setJMSType("DemandeExport");
-            mess.setObject((Serializable) demande);
+            //Envoi du message
             context.createProducer().send(DemandesTraitees, mess);
-            System.out.println(demande + " envoyée.");
+            System.out.println(demande + " traitée envoyée.");
+
 
         } catch (JMSException ex) {
             Logger.getLogger(SendDemandeTraitee.class.getName()).log(Level.SEVERE, null, ex);

@@ -6,8 +6,6 @@
 package fr.tlse.miage.appformations.webservice;
 
 import fr.tlse.miage.appformations.business.GestionFormationsLocal;
-import fr.tlse.miage.appformations.exceptions.FormationNotFoundException;
-import fr.tlse.miage.appformations.exceptions.SessionInexistanteException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.Context;
@@ -19,7 +17,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.ws.rs.POST;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -43,16 +41,15 @@ public class FormationWebService {
     }
 
     /**
-     * Retrieves representation of an instance of
-     * fr.tlse.miage.appformations.webservice.FormationWebService
+     * Annule une session de formation
      *
-     * @param content
-     * @return an instance of java.lang.String
+     * @param idSession - identifiant de la session à annuler
+     * @return - message de confirmation de l'annulation
      */
     @Path("{idSession}/annulerSession")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public String annulerSession(@QueryParam("idSession") long idSession) {
+    public String annulerSession(@PathParam("idSession") long idSession) {
         try {
             return this.gestionFormations.annulerSession(idSession);
         } catch (Exception ex) {
@@ -62,16 +59,17 @@ public class FormationWebService {
     }
 
     /**
-     * POST method for updating or creating an instance of FormationWebService
+     * Traiter les demandes associées à une formation
      *
-     * @param content representation for the resource
-     * @return
+     * @param idFormation - identifiant de la formation pour laquelle on
+     * souhaite traiter les demandes
+     * @return - message de confirmation du traitement des demandes
      */
     @Path("{idFormation}/traiterDemandes")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public String traiterDemandes(@QueryParam("idFormation") long idFormation) {
+    public String traiterDemandes(@PathParam("idFormation") long idFormation) {
         try {
             return this.gestionFormations.traiterDemandes(idFormation);
         } catch (Exception ex) {
@@ -80,6 +78,11 @@ public class FormationWebService {
         }
     }
 
+    /**
+     * Initialise la variable gestionFormations
+     *
+     * @return - instance de la classe GestionFormationsLocal
+     */
     private GestionFormationsLocal lookupGestionFormationsLocal() {
         try {
             javax.naming.Context c = new InitialContext();

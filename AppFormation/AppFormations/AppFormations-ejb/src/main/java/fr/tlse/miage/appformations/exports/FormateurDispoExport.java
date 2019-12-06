@@ -10,9 +10,9 @@ package fr.tlse.miage.appformations.exports;
  * @author SALLABERRYMarion
  */
 public class FormateurDispoExport {
-    private Long idFormation;
-    private Long idFormateur;
-    private int[] listeSemainesDispo;
+    private Long idFormation;           //Identifiant de la formation associée
+    private Long idFormateur;           //Identifiant du formateur
+    private int[] listeSemainesDispo;   //Liste des semaines disponibles
     
     public FormateurDispoExport(Long idFormation, Long idFormateur, int[] listeSemainesDispo){
         this.idFormation = idFormation;
