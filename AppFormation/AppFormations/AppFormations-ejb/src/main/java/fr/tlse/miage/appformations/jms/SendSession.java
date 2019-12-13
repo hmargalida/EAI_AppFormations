@@ -56,7 +56,7 @@ public class SendSession implements SendSessionLocal {
             TextMessage mess = context.createTextMessage();
             //Conversion de l'objet session en json
             mess.setText(this.gson.toJson(session));
-            mess.setJMSType("DemandeExport");
+            mess.setJMSType("SessionExport");
             //Envoi du message
             context.createProducer().send(Session, mess);
             System.out.println(session + " envoyée.");

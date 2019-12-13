@@ -52,6 +52,7 @@ public class ReceiveDemandesValidees implements MessageListener {
                 Demande demande = this.gson.fromJson(json, Demande.class);
                 //Ajout de la demande à la liste des demandes à traiter
                 this.gestionFormations.addDemandeValidee(demande);
+                this.gestionFormations.creerDemande(demande);
                 System.out.println("Demande ajoutée à la liste des demandes à traiter !");
             } catch (JMSException ex) {
                 Logger.getLogger(ReceiveDemandesValidees.class.getName()).log(Level.SEVERE, null, ex);

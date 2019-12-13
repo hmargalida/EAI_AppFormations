@@ -10,17 +10,13 @@ import fr.tlse.miage.appformations.enumerations.StatutDemande;
 import fr.tlse.miage.appformations.entities.Session;
 import fr.tlse.miage.appformations.enumerations.StatutSession;
 import fr.tlse.miage.appformations.exceptions.SessionInexistanteException;
-import fr.tlse.miage.appformations.exports.DemandeExport;
-import fr.tlse.miage.appformations.exports.FormateurDispoExport;
-import fr.tlse.miage.appformations.exports.ListeFormateursDisposExport;
-import fr.tlse.miage.appformations.exports.ListeSallesDisposExport;
-import fr.tlse.miage.appformations.exports.SalleDispoExport;
-import fr.tlse.miage.appformations.exports.SessionExport;
+import fr.tlse.miage.appformations.exports.*;
 import fr.tlse.miage.appformations.jms.SendDemandeTraiteeLocal;
 import fr.tlse.miage.appformations.jms.SendSessionLocal;
 import fr.tlse.miage.appformations.repositories.DemandeFacadeLocal;
 import fr.tlse.miage.appformations.repositories.SessionFacadeLocal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -62,23 +58,31 @@ public class GestionFormations implements GestionFormationsLocal {
     private ArrayList<Demande> demandesValidees;                            //Liste des demandes validées à traiter
     private ArrayList<ListeFormateursDisposExport> listeFormateursDispos;   //Liste des disponibilités des formateurs
     private ArrayList<ListeSallesDisposExport> listeSallesDispos;           //Liste des disponiblités des salles
+    private ArrayList<DemandeExport> demandesTraitees;
 
     public GestionFormations() {
         this.demandesValidees = new ArrayList<Demande>();
         this.listeFormateursDispos = new ArrayList<ListeFormateursDisposExport>();
         this.listeSallesDispos = new ArrayList<ListeSallesDisposExport>();
+        this.demandesTraitees = new ArrayList<DemandeExport>();
     }
 
     /**
-     * Ajout d'une demande validée à la liste des demandes à traiter et création
-     * dans la base de données
+     * Ajout d'une demande validée à la liste des demandes à traiter
      *
      * @param demande - demande à ajouter
      */
     @Override
     public void addDemandeValidee(Demande demande) {
-        this.demandeFacade.creerDemande(demande.getIdFormation(), demande.getNbParticipants(), demande.getIdClient());
         this.demandesValidees.add(demande);
+    }
+
+    /**
+     * Création d'une demande validée dans la base de données
+     * @param demande - demande à ajouter
+     */
+    public void creerDemande(Demande demande) {
+        this.demandeFacade.creerDemande(demande.getIdFormation(), demande.getNbParticipants(), demande.getIdClient());
     }
 
     /**
@@ -213,7 +217,7 @@ public class GestionFormations implements GestionFormationsLocal {
 
                                 //Envoi de la demande traitée à l'AppCommerciale
                                 DemandeExport de = new DemandeExport(d);
-                                this.sendDemandeTraitee.sendDemandeTraitee(de);
+                                this.demandesTraitees.add(de);
 
                                 //Si l'organisation de la session est confirmée (seuil de participant atteint)
                                 if ((nbParticipants >= s.getCapaciteMin()) && (s.getStatut() != StatutSession.Planifiee)) {
@@ -236,7 +240,7 @@ public class GestionFormations implements GestionFormationsLocal {
                         }
                     }
                 }
-            //Aucune session existante pour cette formation
+                //Aucune session existante pour cette formation
             } else {
                 System.out.println("Demande validée : " + d);
                 if (d.getIdFormation() != null) {
@@ -250,11 +254,15 @@ public class GestionFormations implements GestionFormationsLocal {
 
             }
         }
+        ListeDemandesExport demandesAEnvoyer = new ListeDemandesExport(demandesTraitees);
+        this.sendDemandeTraitee.sendDemandeTraitee(demandesAEnvoyer);
+        this.demandesTraitees.clear();
         return "Les demandes ont été traitées !";
     }
 
     /**
      * Détermination de la meilleure période pour organiser la session
+     *
      * @param listeFormateursDispo - liste des disponibilités des formateurs
      * @param listeSallesDispo - liste des disponiblités des salles
      * @return - numéro de semaine optimal pour organiser la formation
@@ -281,8 +289,8 @@ public class GestionFormations implements GestionFormationsLocal {
         System.out.println("DisposSalles : " + disposSalles);
 
         //Récupération de la liste des dates où des formateurs/salles sont disponibles
-        Set<Integer> datesFormateurs = disposFormateurs.keySet();
-        Set<Integer> datesSalles = disposSalles.keySet();
+        List<Integer> datesFormateurs = asSortedList(disposFormateurs.keySet());
+        List<Integer> datesSalles = asSortedList(disposSalles.keySet());
 
         //Comparaison des dates
         for (int dF : datesFormateurs) {
@@ -330,15 +338,33 @@ public class GestionFormations implements GestionFormationsLocal {
 
         //Calcul de la date optimale pour l'organisation de la session
         int date = determinerMeilleurePeriode(formateurs, salles);
-        /**
-         * Récupérer premier formateur et première salle dispo
-         */
 
         //Si une date a été trouvée
         if (date != 0) {
             //Mise à jour des informations de la session
             newSession.setDate(date);
             newSession.setNbParticipants(d.getNbParticipants());
+            newSession.setIdFormation(codeFormation);
+
+            long idFormateur = 0;
+            long idSalle = 0;
+
+            //Récupération du formateur à affecter
+            for (FormateurDispoExport f : formateurs) {
+                if (idFormateur == 0 && f.getListeSemainesDispo().contains(date)) {
+                    idFormateur = f.getIdFormateur();
+                }
+            }
+
+            //Récupération de la salle à affecter
+            for (SalleDispoExport s : salles) {
+                if (idSalle == 0 && s.getListeSemainesDispo().contains(date)) {
+                    idSalle = s.getIdSalle();
+                }
+            }
+
+            newSession.setIdFormateur(idFormateur);
+            newSession.setIdSalle(idSalle);
 
             d.setStatut(StatutDemande.Traitee);
             newSession.addDemande(d);
@@ -348,7 +374,7 @@ public class GestionFormations implements GestionFormationsLocal {
 
             //Envoi de la demande traitée à l'AppCommerciale
             DemandeExport de = new DemandeExport(d);
-            this.sendDemandeTraitee.sendDemandeTraitee(de);
+            this.demandesTraitees.add(de);
 
             //Si l'organisation de la session est confirmée (seuil de participant atteint)
             if ((d.getNbParticipants() >= newSession.getCapaciteMin()) && (newSession.getStatut() != StatutSession.Planifiee)) {
@@ -365,5 +391,11 @@ public class GestionFormations implements GestionFormationsLocal {
             this.sessionFacade.remove(newSession);
         }
 
+    }
+
+    public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+        List<T> list = new ArrayList<T>(c);
+        java.util.Collections.sort(list);
+        return list;
     }
 }

@@ -5,6 +5,9 @@
  */
 package fr.tlse.miage.appformations.exports;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author SALLABERRYMarion
@@ -12,9 +15,9 @@ package fr.tlse.miage.appformations.exports;
 public class SalleDispoExport {
     private Long idFormation;           //Identifiant de la formation associée
     private Long idSalle;               //Identifiant de la salle
-    private int[] listeSemainesDispo;   //Liste des semaines disponibles
+    private List<Integer> listeSemainesDispo;   //Liste des semaines disponibles
     
-    public SalleDispoExport(Long idFormation, Long idSalle, int[] listeSemainesDispo){
+    public SalleDispoExport(Long idFormation, Long idSalle, ArrayList<Integer> listeSemainesDispo){
         this.idFormation = idFormation;
         this.idSalle = idSalle;
         this.listeSemainesDispo = listeSemainesDispo;
@@ -36,13 +39,11 @@ public class SalleDispoExport {
         this.idSalle = idSalle;
     }
 
-    public int[] getListeSemainesDispo() {
+    public List<Integer> getListeSemainesDispo() {
         return listeSemainesDispo;
     }
 
-    public void setListeSemainesDispo(int[] listeSemainesDispo) {
+    public void setListeSemainesDispo(List<Integer> listeSemainesDispo) {
         this.listeSemainesDispo = listeSemainesDispo;
     }
-    
-    
 }

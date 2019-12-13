@@ -7,6 +7,8 @@ package fr.tlse.miage.appformations.jms;
 
 import com.google.gson.Gson;
 import fr.tlse.miage.appformations.exports.DemandeExport;
+import fr.tlse.miage.appformations.exports.ListeDemandesExport;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -47,19 +49,19 @@ public class SendDemandeTraitee implements SendDemandeTraiteeLocal {
     /**
      * Envoi de messages dans le topic DemandesTraitees
      *
-     * @param demande - demande à envoyer
+     * @param demandes - demande à envoyer
      */
     @Override
-    public void sendDemandeTraitee(DemandeExport demande) {
+    public void sendDemandeTraitee(ListeDemandesExport demandes) {
         try {
             JMSProducer producer = context.createProducer();
             TextMessage mess = context.createTextMessage();
             //Conversion de l'objet demande en json
-            mess.setText(this.gson.toJson(demande));
-            mess.setJMSType("DemandeExport");
+            mess.setText(this.gson.toJson(demandes));
+            mess.setJMSType("ListeDemandesExport");
             //Envoi du message
             context.createProducer().send(DemandesTraitees, mess);
-            System.out.println(demande + " traitée envoyée.");
+            System.out.println(demandes + " traitées envoyées.");
 
 
         } catch (JMSException ex) {

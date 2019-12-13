@@ -6,6 +6,8 @@
 package fr.tlse.miage.appformations.jms;
 
 import fr.tlse.miage.appformations.exports.DemandeExport;
+import fr.tlse.miage.appformations.exports.ListeDemandesExport;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -18,7 +20,7 @@ public interface SendDemandeTraiteeLocal {
     /**
      * Envoi de messages dans le topic DemandesTraitees
      *
-     * @param demande - demande à envoyer
+     * @param demandes - demande à envoyer
      */
-    void sendDemandeTraitee(DemandeExport demande);
+    void sendDemandeTraitee(ListeDemandesExport demandes);
 }

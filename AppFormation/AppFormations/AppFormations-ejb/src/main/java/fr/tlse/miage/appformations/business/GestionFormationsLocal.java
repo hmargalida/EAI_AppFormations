@@ -26,6 +26,12 @@ public interface GestionFormationsLocal {
      * @param demande - demande à ajouter
      */
     void addDemandeValidee(Demande demande);
+    
+    /**
+     * Création d'une demande validée dans la base de données
+     * @param demande - demande à ajouter
+     */
+    void creerDemande(Demande demande);
 
     /**
      * Suppression d'une demande de la liste des demandes à traiter

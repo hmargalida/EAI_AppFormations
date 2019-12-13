@@ -5,6 +5,9 @@
  */
 package fr.tlse.miage.appformations.exports;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author SALLABERRYMarion
@@ -12,9 +15,9 @@ package fr.tlse.miage.appformations.exports;
 public class FormateurDispoExport {
     private Long idFormation;           //Identifiant de la formation associée
     private Long idFormateur;           //Identifiant du formateur
-    private int[] listeSemainesDispo;   //Liste des semaines disponibles
+    private List<Integer> listeSemainesDispo;   //Liste des semaines disponibles
     
-    public FormateurDispoExport(Long idFormation, Long idFormateur, int[] listeSemainesDispo){
+    public FormateurDispoExport(Long idFormation, Long idFormateur, ArrayList<Integer> listeSemainesDispo){
         this.idFormation = idFormation;
         this.idFormateur = idFormateur;
         this.listeSemainesDispo = listeSemainesDispo;
@@ -36,13 +39,12 @@ public class FormateurDispoExport {
         this.idFormateur = idFormateur;
     }
 
-    public int[] getListeSemainesDispo() {
+    public List<Integer> getListeSemainesDispo() {
         return listeSemainesDispo;
     }
 
-    public void setListeSemainesDispo(int[] listeSemainesDispo) {
+    public void setListeSemainesDispo(List<Integer> listeSemainesDispo) {
         this.listeSemainesDispo = listeSemainesDispo;
     }
-    
     
 }
